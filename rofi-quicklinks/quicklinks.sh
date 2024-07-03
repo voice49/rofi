@@ -1,31 +1,46 @@
 #!/usr/bin/env bash
+declare -A URLS
+URLS=(
+  ["google"]="https://www.google.com/search?q="
+  ["yahoo"]="https://search.yahoo.com/search?p="
+  ["duckduckgo"]="https://www.duckduckgo.com/?q="
+  ["github"]="https://github.com/search?q="
+  ["askubuntu"]="http://askubuntu.com/search?q="
+  ["piratebay"]="https://thepiratebay.org/search/"
+  ["youtube"]="https://www.youtube.com/results?search_query="
+  ["eshop"]="https://www.e-shop.gr/search?q="
+  ["skroutz"]="https://www.skroutz.gr/search?keyphrase="
+  ["efood"]="https://www.e-food.gr/s/"
+  ["twitch"]="https://www.twitch.tv/search?term="
+)
 
-## Author : Aditya Shakya (adi1090x)
-## Mail : adi1090x@gmail.com
-## Github : @adi1090x
-## Reddit : @adi1090x
+# List for rofi
+gen_list() {
+    for i in "${!URLS[@]}"
+    do
+      echo "$i"
+    done
+}
 
-rofi_command="rofi - quicklinks.rasi"
+main() {
+  # Pass the list to rofi
+  platform=$( (gen_list) | rofi -dmenu -matching fuzzy -no-custom -location 0 -p "Search" )
 
-# Links 
-facebook=" facebook"
-instagram=" instagram"
-netflix=" netflix"
+  if [[ -n "$platform" ]]; then
+    query=$( (echo ) | rofi  -dmenu -matching fuzzy -location 0 -p "Search" )
 
+    if [[ -n "$query" ]]; then
+      url=${URLS[$platform]}$query
+      xdg-open "$url"
+    else
+      exit
+    fi
 
+  else
+    exit
+  fi
+}
 
-# Variable passed to rofi
-options="$facebook\n$instagram\n$netflix"
+main
 
-chosen="$(echo -e "$options" | $rofi_command -p "  " -dmenu -selected-row 0)"
-case $chosen in
-        $facebook)
-        brave --new-tab https://www.facebook.com
-        ;;
-    $instagram)
-        brave --new-tab https://www.instagram.com/?hl=el
-        ;;
-    $netflix)
-        brave --new-tab https://www.netflix.com/browse
-        ;;
-esac
+exit 0
